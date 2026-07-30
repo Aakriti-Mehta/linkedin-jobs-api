@@ -3,8 +3,15 @@
   "version": "1.0.7",
   "description": "advanced node.js package for getting job listings from LinkedIn",
   "main": "index.js",
+  "bin": {
+    "linkedin-jobs-api": "cli.js",
+    "linkedin-jobs-companies": "companies-cli.js"
+  },
   "scripts": {
-    "test": "node test.js"
+    "start": "sh scripts/start.sh",
+    "companies": "sh scripts/companies.sh",
+    "daily:companies-email": "sh scripts/daily-companies-email-job.sh",
+    "test": "sh scripts/start.sh"
   },
   "repository": {
     "type": "git",
@@ -27,6 +34,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.12",
+    "nodemailer": "^6.10.1",
     "random-useragent": "^0.5.0"
   }
 }

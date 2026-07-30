@@ -60,6 +60,95 @@ linkedIn.query(queryOptions).then(response => {
 });
 ```
 
+## CLI Usage
+
+This package also ships with a command-line interface.
+
+After linking the package locally:
+
+```
+npm link
+```
+
+You can then run:
+
+```
+linkedin-jobs-api --keyword "software engineer" --location India --limit 10 --pretty
+```
+
+The CLI enriches every job with a referral message from `referral_service`
+before saving the result to a timestamped JSON file under `job-openings/`.
+Start the referral service first from the workspace root:
+
+```bash
+uvicorn referral_service.main:app --reload --reload-dir referral_service --port 8000
+```
+
+Example CLI output:
+
+```text
+Saved 10 job openings to /path/to/linkedin-jobs-api/job-openings/job-openings-2026-07-05T10-11-12-123Z.json
+```
+
+Useful flags:
+
+- `--keyword`, `--location`
+- `--date-since-posted`, `--job-type`, `--remote-filter`
+- `--salary`, `--experience-level`, `--sort-by`
+- `--limit`, `--page`, `--host`
+- `--job-openings-dir`
+- `--referral-receiver`, `--referral-service-url`
+- `--has-verification`, `--under-10-applicants`
+- `--pretty` to format the saved JSON file
+
+Run `linkedin-jobs-api --help` to see the full usage text.
+
+There is also a company-focused command that keeps results only from these companies:
+
+```
+linkedin-jobs-companies --keyword "software engineer" --location India --limit 10 --pretty
+```
+
+Target companies:
+
+Google, Microsoft, Amazon, Meta, Apple, Tower Research Capital, De Shaw & Co, Arcesium,
+Goldman Sachs, Uber India, Atlassian, Adobe, Salesforce, ServiceNow, Intuit, Walmart Global Tech,
+Linkedin India, Flipkart, PhonePe, CRED, Swiggy, Razorpay, Twilio, GitLab, Automattic, HubSpot,
+Affirm, BrowserStack, Zoho, Motive, Coinbase India, CrowdStrike, Airmeet
+
+## Daily Email Job
+
+The repository also includes a daily batch job that:
+
+1. Runs the company-only search command.
+2. Filters on:
+   - keyword: `software engineer 2 II Python Backend`
+   - location: `India`
+   - limit: `15`
+   - date since posted: `24hr`
+   - sort by: `relevant`
+3. Sends the JSON report by email.
+
+Set it up like this:
+
+```bash
+cp .env.example .env
+```
+
+Then fill in your email and SMTP settings in `.env`.
+
+To run it manually:
+
+```bash
+sh scripts/daily-companies-email-job.sh
+```
+
+Cron example:
+
+```bash
+0 9 * * * cd /Users/aakritimehta/Documents/Codex/2026-07-02/setup-and-start-this-project-vishwagauravin-2/work/linkedin-jobs-api && sh scripts/daily-companies-email-job.sh >> /Users/aakritimehta/Documents/Codex/2026-07-02/setup-and-start-this-project-vishwagauravin-2/work/linkedin-jobs-api/work/daily-companies-email-job.log 2>&1
+```
+
 ## Query Object Parameters
 
 query() accepts a _queryOptions_ object and returns an array of _Job_ objects.
@@ -98,12 +187,14 @@ query() accepts a _queryOptions_ object and returns an array of _Job_ objects.
   {
     "position": "Human Resources Administrator",
     "company": "The Hub",
+    "jobId": "3765436573",
     "companyLogo": "https://static.licdn.com/aero-v1/sc/h/9a9u41thxt325ucfh5z8ga4m8",
     "location": "India",
     "date": "2023-11-20",
     "agoTime": "2 days ago",
     "salary": "",
-    "jobUrl": "https://in.linkedin.com/jobs/view/human-resources-administrator-at-the-hub-3765436573?refId=rWSjK9izzZ1ZNnUZYzqp8Q%3D%3D&trackingId=X6uox0Xk%2FRQmqkuHpO%2BdrQ%3D%3D&position=1&pageNum=0&trk=public_jobs_jserp-result_search-card"
+    "jobUrl": "https://in.linkedin.com/jobs/view/human-resources-administrator-at-the-hub-3765436573?refId=rWSjK9izzZ1ZNnUZYzqp8Q%3D%3D&trackingId=X6uox0Xk%2FRQmqkuHpO%2BdrQ%3D%3D&position=1&pageNum=0&trk=public_jobs_jserp-result_search-card",
+    "referralMessage": "Subject: Referral Request: Human Resources Administrator (Job ID: 3765436573) - Aakriti Mehta\n\nHi Hiring Team,\n..."
   }
 ]
 ```

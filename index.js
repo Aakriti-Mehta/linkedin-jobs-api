@@ -172,14 +172,11 @@ Query.prototype.getJobs = async function () {
   let hasMore = true;
   let consecutiveErrors = 0;
   const MAX_CONSECUTIVE_ERRORS = 3;
-  console.log(this.url());
-  console.log(this.getCacheKey());
   try {
     // Check cache first
     const cacheKey = this.getCacheKey();
     const cachedJobs = cache.get(cacheKey);
     if (cachedJobs) {
-      console.log("Returning cached results");
       return cachedJobs;
     }
 
@@ -193,7 +190,6 @@ Query.prototype.getJobs = async function () {
         }
 
         allJobs.push(...jobs);
-        console.log(`Fetched ${jobs.length} jobs. Total: ${allJobs.length}`);
 
         if (this.limit && allJobs.length >= this.limit) {
           allJobs = allJobs.slice(0, this.limit);
@@ -208,13 +204,8 @@ Query.prototype.getJobs = async function () {
         await delay(2000 + Math.random() * 1000);
       } catch (error) {
         consecutiveErrors++;
-        console.error(
-          `Error fetching batch (attempt ${consecutiveErrors}):`,
-          error.message
-        );
 
         if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-          console.log("Max consecutive errors reached. Stopping.");
           break;
         }
 
@@ -230,7 +221,6 @@ Query.prototype.getJobs = async function () {
 
     return allJobs;
   } catch (error) {
-    console.error("Fatal error in job fetching:", error);
     throw error;
   }
 };
@@ -310,14 +300,18 @@ function parseJobList(jobData) {
             agoTime: agoTime || "",
           };
         } catch (err) {
-          console.warn(`Error parsing job at index ${index}:`, err.message);
+          if (process.env.LINKEDIN_JOBS_API_DEBUG) {
+            console.warn(`Error parsing job at index ${index}:`, err.message);
+          }
           return null;
         }
       })
       .get()
       .filter(Boolean);
   } catch (error) {
-    console.error("Error parsing job list:", error);
+    if (process.env.LINKEDIN_JOBS_API_DEBUG) {
+      console.error("Error parsing job list:", error);
+    }
     return [];
   }
 }

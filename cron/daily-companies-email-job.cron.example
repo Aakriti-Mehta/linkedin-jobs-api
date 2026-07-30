@@ -1,0 +1,3 @@
+# Run every day at 9:00 AM local time.
+# The wrapper loads .env from the repo root automatically.
+0 9 * * * cd /Users/aakritimehta/Documents/Codex/2026-07-02/setup-and-start-this-project-vishwagauravin-2/work/linkedin-jobs-api && sh scripts/daily-companies-email-job.sh >> /Users/aakritimehta/Documents/Codex/2026-07-02/setup-and-start-this-project-vishwagauravin-2/work/linkedin-jobs-api/work/daily-companies-email-job.log 2>&1
